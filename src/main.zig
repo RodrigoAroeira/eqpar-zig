@@ -8,7 +8,7 @@ pub fn main(init: std.process.Init) !void {
     var writer: Io.File.Writer = .init(.stdout(), init.io, &writer_buff);
     defer writer.flush() catch {};
 
-    var stdout = &writer.interface;
+    const stdout = &writer.interface;
 
     const allocator = init.arena.allocator();
     const args = (try init.minimal.args.toSlice(allocator))[1..];
@@ -19,12 +19,13 @@ pub fn main(init: std.process.Init) !void {
 
         try eqpar.repl(&reader.interface, stdout, allocator);
     } else {
-        var inv_sum: f32 = 0;
+        var line: std.ArrayList(u8) = .empty;
         for (args) |arg| {
-            const n = try std.fmt.parseFloat(f32, arg);
-            inv_sum += 1 / n;
+            for (arg) |c|
+                try line.append(allocator, c);
+            try line.append(allocator, ' ');
         }
-        const eq = 1 / inv_sum;
-        try stdout.print("{d:.4}\n", .{eq});
+
+        try eqpar.run(stdout, line.items, allocator);
     }
 }
