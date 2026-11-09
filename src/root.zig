@@ -4,6 +4,8 @@ const parse = @import("parse");
 const Io = std.Io;
 const Allocator = std.mem.Allocator;
 
+const OHM = "\u{03A9}";
+
 pub fn repl(stdin: *Io.Reader, stdout: *Io.Writer, allocator: Allocator) !void {
     while (true) {
         try stdout.print("> ", .{});
@@ -19,14 +21,10 @@ pub fn repl(stdin: *Io.Reader, stdout: *Io.Writer, allocator: Allocator) !void {
             std.debug.print("{}\n", .{err});
             continue;
         };
-        // for (tokens.items) |tok| {
-        //     std.debug.print("{} ", .{tok});
-        // }
-        std.debug.print("\n", .{});
         const eq = parse.parse(tokens.items) catch |err| {
             std.debug.print("Unable to parse: {}\n", .{err});
             continue;
         };
-        try stdout.print("{d}\n", .{eq});
+        try stdout.print("{d} {s}\n", .{eq, OHM});
     }
 }
